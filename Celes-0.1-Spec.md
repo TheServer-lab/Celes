@@ -41,7 +41,7 @@ Anything following a semicolon on a line is treated as a comment and will not be
 | `<line -align=left>{text}` | Left-aligned line (default) |
 | `<line -align=center>{text}` | Centered line |
 | `<line -align=right>{text}` | Right-aligned line |
-| `<blockquote>{text}` | A blockquote. Supports inline tags and `<newline>` inside. |
+| `<blockquote>{text}` | A blockquote. Supports inline tags, `<newline>`, and `<nestquote>` inside. |
 | `<codeblock>{code}` | A multi-line block of code |
 | `<image>{path/or/url}` | Displays an image from a path or URL |
 | `<linkimage -image=path.png>{url}` | A clickable image that links to a URL |
@@ -105,6 +105,8 @@ These are used **inside** `<line>{...}` content:
 | `<strike>{text}` | Strikethrough text |
 | `<code>{text}` | Inline code |
 | `<link -body=visible text>{url}` | A hyperlink. `-body` is the display text, content is the URL. |
+| `<nestquote>{text}` | A nested blockquote inside a `<blockquote>` |
+| `<empty>{text}` | Raw plain text — nothing inside is parsed. Use for literal `<`, `{`, `}` characters. |
 
 ---
 
