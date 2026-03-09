@@ -41,6 +41,7 @@ Anything following a semicolon on a line is treated as a comment and will not be
 | `<line -align=left>{text}` | Left-aligned line (default) |
 | `<line -align=center>{text}` | Centered line |
 | `<line -align=right>{text}` | Right-aligned line |
+| `<blockquote>{text}` | A blockquote. Supports inline tags and `<newline>` inside. |
 | `<codeblock>{code}` | A multi-line block of code |
 | `<image>{path/or/url}` | Displays an image from a path or URL |
 | `<linkimage -image=path.png>{url}` | A clickable image that links to a URL |
@@ -55,6 +56,13 @@ Anything following a semicolon on a line is treated as a comment and will not be
 | `<list -bullet=number>{text}` | A numbered list item |
 | `<sublist -bullet=circle>{text}` | A nested bullet sub-item (placed immediately after its parent `<list>`) |
 | `<sublist -bullet=number>{text}` | A nested numbered sub-item |
+
+Checkboxes can be placed inside `<list>` items as inline tags:
+
+| Tag | Description |
+|-----|-------------|
+| `<checkmark -check>{text}` | A checked/completed task |
+| `<checkmark -uncheck>{text}` | An unchecked/incomplete task |
 
 ---
 
@@ -92,6 +100,7 @@ These are used **inside** `<line>{...}` content:
 |-----|-------------|
 | `<bold>{text}` | Bold text |
 | `<italic>{text}` | Italic text |
+| `<bold+italic>{text}` | Bold and italic combined |
 | `<underline>{text}` | Underlined text |
 | `<strike>{text}` | Strikethrough text |
 | `<code>{text}` | Inline code |
@@ -99,7 +108,11 @@ These are used **inside** `<line>{...}` content:
 
 ---
 
-## Example Document
+## Parser Rules
+
+- The `{}` content braces are **required** on all content tags. `<line>text` is invalid; `<line>{text}` is correct.
+- The parser is **strict** — malformed tags will not be rendered leniently.
+- Emojis are **not** part of standard Celes 0.1.
 
 ```
 <!Celes-0.1>
