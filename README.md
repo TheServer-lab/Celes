@@ -10,7 +10,7 @@
 <header -size=1>{Welcome to Celes}
 <line>{This is <bold>{bold}, <mark>{highlighted}, and E=mc<super>{2}.}
 <list -bullet=circle>{Simple}<list -bullet=circle>{Explicit}<list -bullet=circle>{Powerful}
-<line>{<button -body=Get Started>{https://github.com/rr1ck/celes}}
+<line>{<button -body=Get Started>{https://github.com/TheServer-lab/celes}}
 ```
 
 ---
