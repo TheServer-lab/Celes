@@ -3,11 +3,14 @@
 > A tag-based markup language designed to be explicit, readable, and unambiguous.
 
 ```
-<!Celes-0.1>
+<!Celes-0.1.4>
+<author>{Sourasish Das}
+<date>{11/03/2025}
 <title>{Hello World}
 <header -size=1>{Welcome to Celes}
-<line>{This is <bold>{bold}, <italic>{italic}, and <code>{inline code}.}
+<line>{This is <bold>{bold}, <mark>{highlighted}, and E=mc<super>{2}.}
 <list -bullet=circle>{Simple}<list -bullet=circle>{Explicit}<list -bullet=circle>{Powerful}
+<line>{<button -body=Get Started>{https://github.com/rr1ck/celes}}
 ```
 
 ---
@@ -32,16 +35,16 @@ Requires Python 3.8+. No external dependencies.
 
 ```bash
 # Convert a Celes file to HTML
-py -m celes parse doc.celes doc.html
+celes parse doc.celes doc.html
 
 # Validate a Celes file
-py -m celes validate doc.celes
+celes validate doc.celes
 
 # Convert Markdown → Celes
-py -m celes md README.md README.celes
+celes md README.md README.celes
 
 # Convert Celes → Markdown
-py -m celes tomd doc.celes doc.md
+celes tomd doc.celes doc.md
 ```
 
 ---
@@ -71,7 +74,7 @@ markdown_source = convert_celes_to_md(celes_source)
 ### Document Declaration
 Every Celes file starts with:
 ```
-<!Celes-0.1>
+<!Celes-0.1.4>
 ```
 
 ### Comments
@@ -79,11 +82,23 @@ Every Celes file starts with:
 ; This is a comment — anything after a semicolon is ignored
 ```
 
-### Document Tags
+### Document & Metadata Tags
 | Tag | Description |
 |-----|-------------|
-| `<title>{text}` | Browser/tab title |
+| `<title>{text}` | Browser/tab title (not visible on page) |
+| `<author>{name}` | Document author metadata (not visible on page) |
+| `<date>{dd/mm/yyyy}` | Document date metadata (not visible on page) |
 | `<header -size=1>{text}` | Heading, size 1–6 |
+
+### Section Tag
+```
+<section>{Introduction}
+<line>{This content belongs to the Introduction section.}
+
+<section>{Conclusion}
+<line>{This content belongs to the Conclusion section.}
+```
+Renders as a styled label with horizontal rules on either side.
 
 ### Block Tags
 | Tag | Description |
@@ -100,7 +115,10 @@ Every Celes file starts with:
 |-----|-------------|
 | `<list -bullet=circle>{text}` | Bullet list item |
 | `<list -bullet=number>{text}` | Numbered list item |
-| `<sublist -bullet=circle>{text}` | Nested sub-item (placed right after `<list>`) |
+| `<sublist -bullet=circle>{text}` | Nested sub-item (level 2) |
+| `<sublist -bullet=number>{text}` | Numbered nested sub-item (level 2) |
+| `<subsublist -bullet=circle>{text}` | Deeply nested item (level 3) |
+| `<subsublist -bullet=number>{text}` | Numbered deeply nested item (level 3) |
 
 ### Tables
 ```
@@ -127,57 +145,80 @@ Used inside `<line>`, `<blockquote>`, and list content:
 | `<bold+italic>{text}` | Bold and italic combined |
 | `<underline>{text}` | Underline |
 | `<strike>{text}` | Strikethrough |
+| `<super>{text}` | Superscript (e.g. x`<super>{2}`) |
+| `<sub>{text}` | Subscript (e.g. H`<sub>{2}`O) |
+| `<mark>{text}` | Highlighted text |
 | `<code>{text}` | Inline code |
 | `<link -body=display text>{url}` | Hyperlink |
-| `<checkmark -check>{text}` | Checked task |
-| `<checkmark -uncheck>{text}` | Unchecked task |
+| `<button -body=label>{url}` | Clickable button that links to a URL |
+| `<checkmark -check>{text}` | Checked task (inside `<list>`) |
+| `<checkmark -uncheck>{text}` | Unchecked task (inside `<list>`) |
 | `<nestquote>{text}` | Nested blockquote (inside `<blockquote>`) |
 | `<empty>{raw text}` | Raw text — nothing inside is parsed, safe for `<` and `{` |
 
 ### Parser Rules
 - `{}` content braces are **required** on all content tags — the parser is strict
-- Emojis are not part of standard Celes 0.1
-- Footnotes are not part of standard Celes 0.1
+- Emojis are not part of standard Celes 0.1.x
+- Footnotes are not part of standard Celes 0.1.x
 
 ---
 
 ## Full Example
 
 ```
-<!Celes-0.1>
-; My first Celes document
+<!Celes-0.1.4>
 <title>{My Page}
-<header -size=1>{Hello, World!}
-<line>{This is <bold>{bold} and <italic>{italic} text with a <link -body=link>{https://example.com}.}
+<author>{Sourasish Das}
+<date>{11/03/2025}
+
+<section>{Introduction}
+<header -size=1>{Hello, Celes 0.1.4!}
+<line>{This is <bold>{bold}, <italic>{italic}, <mark>{highlighted}, and <super>{superscript} text.}
+<line>{Water is H<sub>{2}O. Visit <link -body=example>{https://example.com}.}
+<line>{<button -body=Click Me>{https://example.com}}
 <newline>
-<list -bullet=circle>{Apples}<sublist -bullet=circle>{Fuji}<sublist -bullet=circle>{Gala}
-<list -bullet=number>{First step}
-<list -bullet=number>{Second step}
+
+<section>{Lists}
+<list -bullet=circle>{Fruits}
+<sublist -bullet=circle>{Citrus}<subsublist -bullet=circle>{Lemon}<subsublist -bullet=circle>{Lime}
+<sublist -bullet=circle>{Berries}
+<list -bullet=number>{Step one}
+<list -bullet=number>{Step two}
 <newline>
+
+<section>{Data}
 <table>{Name, Age, City}
 <item>{Alice, 30, New York}
 <item>{Bob, 25, London}
 <newline>
 <codeblock>{print("Hello, World!")}
 <blockquote>{A quote. <nestquote>{A nested quote.}}
-<line -align=center>{Centered text}
-<list -bullet=circle>{<checkmark -check>{Done}}<list -bullet=circle>{<checkmark -uncheck>{Pending}}
 <image>{photo.png}
-<linkimage -image=photo.png>{https://example.com}
 <insertspace>
-<empty>{Use <angle brackets> freely in here without breaking the parser.}
+<line -align=center>{Made with <bold>{Celes} 0.1.4}
 ```
 
 ---
 
 ## Tools
 
+### WYSIWYG Editor
+
+A browser-based Word-like editor that outputs Celes markup live as you type — no installation needed.
+
+- Toolbar with bold, italic, headings, lists, tables, links, and more
+- Live Celes output panel with syntax highlighting
+- Playground tab to write raw Celes and see it render instantly
+- Download as `.celes` file
+
+Open `celes-editor.html` directly in any browser.
+
 ### VS Code Extension
 
 Full language support for `.celes` files in Visual Studio Code:
 
 - Syntax highlighting
-- Snippets for every tag (type `header`, `line`, `table`, etc. and press Tab)
+- Snippets for every tag (type the tag name and press Tab)
 - Validation with error squiggles as you type
 - Live HTML preview side panel
 
@@ -227,10 +268,32 @@ celes/
 │   ├── celes-parser.js
 │   ├── content.js
 │   └── popup.html
-├── Celes-0.1-Spec.md       # Full language specification
+├── celes-editor.html       # Standalone WYSIWYG editor
+├── Celes-0.1.4-Spec.md     # Full language specification
 ├── setup.py
 └── README.md
 ```
+
+---
+
+## Changelog
+
+### 0.1.4
+- Added `<super>{text}` — superscript
+- Added `<sub>{text}` — subscript
+- Added `<mark>{text}` — highlighted text
+- Added `<button -body=label>{url}` — clickable button
+- Added `<subsublist>` — third-level nested list items
+- Added `<author>{name}` — document author metadata
+- Added `<date>{dd/mm/yyyy}` — document date metadata
+- Added `<section>{name}` — named section divider
+
+### 0.1.1 – 0.1.3
+- License updated to SOCL 1.0
+- Minor parser and packaging fixes
+
+### 0.1.0
+- Initial release
 
 ---
 
