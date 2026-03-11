@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Celes Renderer",
+  "description": "Renders .celes files beautifully in the browser",
+  "version": "0.1.4",
+  "author": "rr1ck",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["celes-parser.js", "content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "permissions": [],
+  "web_accessible_resources": [
+    {
+      "resources": ["celes-parser.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
