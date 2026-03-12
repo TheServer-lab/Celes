@@ -63,8 +63,29 @@
 
   function tokenize(source) {
     const tokens = [];
-    for (const raw of source.split('\n')) {
+    const lines = source.split('\n');
+    let i = 0;
+    while (i < lines.length) {
+      let raw = lines[i];
+      i++;
       if (!raw.trim()) continue;
+
+      // If this line opens more braces than it closes, it contains multi-line
+      // content (e.g. <codeblock>{...}). Keep joining lines until balanced.
+      let depth = 0;
+      for (const ch of raw) {
+        if (ch === '{') depth++;
+        else if (ch === '}') depth--;
+      }
+      while (depth > 0 && i < lines.length) {
+        raw += '\n' + lines[i];
+        for (const ch of lines[i]) {
+          if (ch === '{') depth++;
+          else if (ch === '}') depth--;
+        }
+        i++;
+      }
+
       for (const single of splitMultiTagLine(raw)) {
         if (!single.trim()) continue;
         const result = parseTagLine(single);
