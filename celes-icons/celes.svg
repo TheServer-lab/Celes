@@ -1,0 +1,24 @@
+<svg width="512" height="512" viewBox="0 0 680 680" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background rounded square -->
+  <rect x="90" y="90" width="500" height="500" rx="100" fill="#D4622A"/>
+
+  <!-- Subtle inner arc -->
+  <path d="M190 480 Q340 560 490 480" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="3"/>
+
+  <!-- Left angle bracket < -->
+  <path d="M175 260 L265 200 L265 230 L215 275 L265 320 L265 350 L175 290 Z" fill="white"/>
+
+  <!-- Right angle bracket > -->
+  <path d="M505 260 L415 200 L415 230 L465 275 L415 320 L415 350 L505 290 Z" fill="white"/>
+
+  <!-- Curly brace left { -->
+  <path d="M295 210 Q275 210 270 230 L270 300 Q265 320 248 340 Q265 360 270 380 L270 450 Q275 470 295 470"
+    fill="none" stroke="white" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Curly brace right } -->
+  <path d="M385 210 Q405 210 410 230 L410 300 Q415 320 432 340 Q415 360 410 380 L410 450 Q405 470 385 470"
+    fill="none" stroke="white" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Center dot -->
+  <circle cx="340" cy="340" r="18" fill="white"/>
+</svg>
