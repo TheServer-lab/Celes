@@ -1,23 +1,44 @@
-# Celes
+<div align="center">
+  <img src="celes-icons/celes-128.png" width="96" alt="Celes logo"/>
+  <h1>Celes</h1>
+  <p>A strict, tag-based markup language. Explicit syntax. Zero ambiguity.</p>
 
-> A tag-based markup language designed to be explicit, readable, and unambiguous.
+  <a href="https://pypi.org/project/celes/"><img src="https://img.shields.io/pypi/v/celes?color=D4622A&label=pypi" alt="PyPI"/></a>
+  <a href="https://pypi.org/project/celes/"><img src="https://img.shields.io/pypi/dm/celes?color=D4622A&label=downloads" alt="Downloads"/></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=rr1ck.celes-lang"><img src="https://img.shields.io/visual-studio-marketplace/v/rr1ck.celes-lang?color=D4622A&label=vscode" alt="VS Code"/></a>
+  <img src="https://img.shields.io/badge/version-0.1.4-D4622A" alt="Version"/>
+  <img src="https://img.shields.io/badge/python-3.8%2B-blue" alt="Python"/>
+  <img src="https://img.shields.io/badge/license-SOCL--1.0-lightgrey" alt="License"/>
+</div>
+
+---
 
 ```
 <!Celes-0.1.4>
-<author>{Sourasish Das}
-<date>{11/03/2025}
 <title>{Hello World}
 <header -size=1>{Welcome to Celes}
 <line>{This is <bold>{bold}, <mark>{highlighted}, and E=mc<super>{2}.}
-<list -bullet=circle>{Simple}<list -bullet=circle>{Explicit}<list -bullet=circle>{Powerful}
-<line>{<button -body=Get Started>{https://github.com/TheServer-lab/celes}}
+<list -bullet=circle>{Simple}
+<list -bullet=circle>{Explicit}
+<list -bullet=circle>{Powerful}
+<line>{<button -body=Get Started>{https://github.com/TheServer-lab/Celes}}
 ```
 
 ---
 
-## What is Celes?
+## Why Celes?
 
-Celes is a markup language alternative to Markdown. Where Markdown relies on symbols and whitespace rules that can behave unpredictably, Celes uses a consistent `<tag>{content}` syntax — every element is named, every attribute is explicit, and the parser is strict.
+Markdown's symbol-based syntax has real ambiguity problems. A `*` might be bold, italic, or a list item depending on context. Indentation rules differ between parsers. Nested structures are fragile.
+
+Celes takes the opposite approach: **every element is a named tag, every attribute is explicit, and the parser is strict**. If something is wrong, you get an error — not silently broken output.
+
+```
+; Markdown — ambiguous
+**bold** or __bold__?    * list or *italic*?
+
+; Celes — one way to do everything
+<bold>{bold}             <list -bullet=circle>{item}
+```
 
 ---
 
@@ -31,20 +52,20 @@ Requires Python 3.8+. No external dependencies.
 
 ---
 
-## CLI Usage
+## CLI
 
 ```bash
-# Convert a Celes file to HTML
-py -m celes parse doc.celes doc.html
+# Parse Celes → HTML
+celes parse doc.celes doc.html
 
-# Validate a Celes file
-py -m celes validate doc.celes
+# Validate a file
+celes validate doc.celes
 
 # Convert Markdown → Celes
-py -m celes md README.md README.celes
+celes md README.md README.celes
 
 # Convert Celes → Markdown
-py -m celes tomd doc.celes doc.md
+celes tomd doc.celes doc.md
 ```
 
 ---
@@ -69,66 +90,62 @@ markdown_source = convert_celes_to_md(celes_source)
 
 ---
 
-## Syntax Reference
+## Syntax
 
-### Document Declaration
-Every Celes file starts with:
+Every Celes file starts with a version declaration:
+
 ```
 <!Celes-0.1.4>
 ```
 
-### Comments
+Comments use a semicolon prefix:
+
 ```
-; This is a comment — anything after a semicolon is ignored
+; This is a comment
 ```
 
-### Document & Metadata Tags
+### Document & Metadata
+
 | Tag | Description |
 |-----|-------------|
-| `<title>{text}` | Browser/tab title (not visible on page) |
-| `<author>{name}` | Document author metadata (not visible on page) |
-| `<date>{dd/mm/yyyy}` | Document date metadata (not visible on page) |
+| `<title>{text}` | Browser/tab title |
 | `<header -size=1>{text}` | Heading, size 1–6 |
-
-### Section Tag
-```
-<section>{Introduction}
-<line>{This content belongs to the Introduction section.}
-
-<section>{Conclusion}
-<line>{This content belongs to the Conclusion section.}
-```
-Renders as a styled label with horizontal rules on either side.
+| `<author>{name}` | Author metadata (not rendered) |
+| `<date>{dd/mm/yyyy}` | Date metadata (not rendered) |
+| `<section>{name}` | Named section divider with horizontal rules |
 
 ### Block Tags
+
 | Tag | Description |
 |-----|-------------|
-| `<line>{text}` | Paragraph line |
-| `<line -align=center>{text}` | Aligned line (`left`, `center`, `right`) |
-| `<blockquote>{text}` | Blockquote, supports `<nestquote>` inside |
+| `<line>{text}` | Paragraph |
+| `<line -align=center>{text}` | Aligned paragraph (`left`, `center`, `right`) |
+| `<blockquote>{text}` | Blockquote |
 | `<codeblock>{code}` | Multi-line code block |
 | `<image>{path/url}` | Image |
 | `<linkimage -image=path.png>{url}` | Clickable image |
 
 ### Lists
+
 | Tag | Description |
 |-----|-------------|
 | `<list -bullet=circle>{text}` | Bullet list item |
 | `<list -bullet=number>{text}` | Numbered list item |
-| `<sublist -bullet=circle>{text}` | Nested sub-item (level 2) |
-| `<sublist -bullet=number>{text}` | Numbered nested sub-item (level 2) |
+| `<sublist -bullet=circle>{text}` | Nested item (level 2) |
 | `<subsublist -bullet=circle>{text}` | Deeply nested item (level 3) |
-| `<subsublist -bullet=number>{text}` | Numbered deeply nested item (level 3) |
 
 ### Tables
+
 ```
 <table>{Name, Age, City}
 <item>{Alice, 30, New York}
 <item>{Bob, 25, London}
 ```
-> Note: cell values cannot contain commas — commas are reserved as column separators.
+
+> Commas are reserved as column separators — cell values cannot contain commas.
 
 ### Self-Closing Tags
+
 | Tag | Description |
 |-----|-------------|
 | `<newline>` | Line break |
@@ -136,30 +153,24 @@ Renders as a styled label with horizontal rules on either side.
 | `<insertspace>` | Extra spacing / horizontal rule |
 
 ### Inline Tags
-Used inside `<line>`, `<blockquote>`, and list content:
 
 | Tag | Description |
 |-----|-------------|
 | `<bold>{text}` | Bold |
 | `<italic>{text}` | Italic |
-| `<bold+italic>{text}` | Bold and italic combined |
+| `<bold+italic>{text}` | Bold and italic |
 | `<underline>{text}` | Underline |
 | `<strike>{text}` | Strikethrough |
-| `<super>{text}` | Superscript (e.g. x`<super>{2}`) |
-| `<sub>{text}` | Subscript (e.g. H`<sub>{2}`O) |
+| `<super>{text}` | Superscript |
+| `<sub>{text}` | Subscript |
 | `<mark>{text}` | Highlighted text |
 | `<code>{text}` | Inline code |
 | `<link -body=display text>{url}` | Hyperlink |
-| `<button -body=label>{url}` | Clickable button that links to a URL |
-| `<checkmark -check>{text}` | Checked task (inside `<list>`) |
-| `<checkmark -uncheck>{text}` | Unchecked task (inside `<list>`) |
+| `<button -body=label>{url}` | Clickable button |
+| `<checkmark -check>{text}` | Checked item (inside `<list>`) |
+| `<checkmark -uncheck>{text}` | Unchecked item (inside `<list>`) |
 | `<nestquote>{text}` | Nested blockquote (inside `<blockquote>`) |
-| `<empty>{raw text}` | Raw text — nothing inside is parsed, safe for `<` and `{` |
-
-### Parser Rules
-- `{}` content braces are **required** on all content tags — the parser is strict
-- Emojis are not part of standard Celes 0.1.x
-- Footnotes are not part of standard Celes 0.1.x
+| `<empty>{raw text}` | Raw text — nothing inside is parsed |
 
 ---
 
@@ -180,8 +191,9 @@ Used inside `<line>`, `<blockquote>`, and list content:
 
 <section>{Lists}
 <list -bullet=circle>{Fruits}
-<sublist -bullet=circle>{Citrus}<subsublist -bullet=circle>{Lemon}<subsublist -bullet=circle>{Lime}
-<sublist -bullet=circle>{Berries}
+<sublist -bullet=circle>{Citrus}
+<subsublist -bullet=circle>{Lemon}
+<subsublist -bullet=circle>{Lime}
 <list -bullet=number>{Step one}
 <list -bullet=number>{Step two}
 <newline>
@@ -193,7 +205,6 @@ Used inside `<line>`, `<blockquote>`, and list content:
 <newline>
 <codeblock>{print("Hello, World!")}
 <blockquote>{A quote. <nestquote>{A nested quote.}}
-<image>{photo.png}
 <insertspace>
 <line -align=center>{Made with <bold>{Celes} 0.1.4}
 ```
@@ -202,75 +213,41 @@ Used inside `<line>`, `<blockquote>`, and list content:
 
 ## Tools
 
-### WYSIWYG Editor
+### 🖊 WYSIWYG Editor
+A standalone browser-based editor — no install needed. Word-like toolbar, live Celes output panel, and a raw Celes playground. Open `celes-editor.html` in any browser.
 
-A browser-based Word-like editor that outputs Celes markup live as you type — no installation needed.
+### 💻 Desktop App
+A native Windows application (`Celes.exe`) wrapping the editor with native Open / Save / Export HTML file dialogs.
 
-- Toolbar with bold, italic, headings, lists, tables, links, and more
-- Live Celes output panel with syntax highlighting
-- Playground tab to write raw Celes and see it render instantly
-- Download as `.celes` file
+- `Ctrl+S` — Save
+- `Ctrl+Shift+S` — Save As
+- `Ctrl+O` — Open `.celes` file
+- `Ctrl+Shift+E` — Export to HTML
 
-Open `celes-editor.html` directly in any browser.
+### 🧩 VS Code Extension
+[![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/rr1ck.celes-lang?label=Install%20from%20Marketplace&color=D4622A)](https://marketplace.visualstudio.com/items?itemName=rr1ck.celes-lang)
 
-### VS Code Extension
+Syntax highlighting, snippets for every tag, live validation with error squiggles, and a live HTML preview panel.
 
-Full language support for `.celes` files in Visual Studio Code:
-
-- Syntax highlighting
-- Snippets for every tag (type the tag name and press Tab)
-- Validation with error squiggles as you type
-- Live HTML preview side panel
-
-**Installation:** Requires Node.js.
-
-```bash
-cd celes-vscode
-npm install
-npm install -g vsce
-vsce package
-```
-
-Then in VS Code: **Extensions → ··· → Install from VSIX** and select the generated `.vsix` file.
-
-The preview and validation require the `celes` Python package to be installed.
-
-### Browser Extension (Chrome & Edge)
-
-Automatically renders `.celes` files when opened directly in the browser. Displays a styled page with a **View Source** toggle.
-
-**Installation:**
-1. Go to `chrome://extensions` or `edge://extensions`
-2. Enable **Developer mode**
-3. Click **Load unpacked**
-4. Select the `celes-browser` folder
+### 🌐 Browser Extension
+Automatically renders `.celes` files when opened in Chrome or Edge. Available on the Chrome Web Store and Edge Add-ons.
 
 ---
 
 ## Project Structure
 
 ```
-celes/
-├── celes/                  # Python package
-│   ├── __init__.py
-│   ├── core.py             # Shared tokenizer and utilities
+Celes/
+├── celes/                  # Python package (pip install celes)
 │   ├── parser.py           # Celes → HTML
-│   ├── validator.py        # Validator with line-number errors
+│   ├── validator.py        # Strict validator with line-number errors
 │   ├── md_to_celes.py      # Markdown → Celes
 │   └── celes_to_md.py      # Celes → Markdown
 ├── celes-vscode/           # VS Code extension
-│   ├── src/extension.js
-│   ├── syntaxes/
-│   ├── snippets/
-│   └── package.json
-├── celes-browser/          # Chrome/Edge browser extension
-│   ├── manifest.json
-│   ├── celes-parser.js
-│   ├── content.js
-│   └── popup.html
+├── celes-browser/          # Chrome / Edge extension
+├── celes-desktop/          # PyInstaller desktop app
 ├── celes-editor.html       # Standalone WYSIWYG editor
 ├── Celes-0.1.4-Spec.md     # Full language specification
-├── setup.py
 └── README.md
 ```
 
@@ -279,14 +256,10 @@ celes/
 ## Changelog
 
 ### 0.1.4
-- Added `<super>{text}` — superscript
-- Added `<sub>{text}` — subscript
-- Added `<mark>{text}` — highlighted text
-- Added `<button -body=label>{url}` — clickable button
-- Added `<subsublist>` — third-level nested list items
-- Added `<author>{name}` — document author metadata
-- Added `<date>{dd/mm/yyyy}` — document date metadata
-- Added `<section>{name}` — named section divider
+- Added `<super>`, `<sub>`, `<mark>`, `<button>`, `<subsublist>`, `<section>`, `<author>`, `<date>`
+- Desktop app (`Celes.exe`) with native file dialogs
+- VS Code extension published to marketplace
+- Browser extension published to Chrome Web Store and Edge Add-ons
 
 ### 0.1.1 – 0.1.3
 - License updated to SOCL 1.0
@@ -299,6 +272,4 @@ celes/
 
 ## License
 
-Server-Lab Open-Control License (SOCL) 1.0 — Copyright (c) 2025 Sourasish Das.
-
-See [LICENSE](LICENSE) for full terms.
+[Server-Lab Open-Control License (SOCL) 1.0](LICENSE) — Copyright © 2025 Sourasish Das.
