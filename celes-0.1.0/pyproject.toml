@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "celes"
+version = "0.1.5"
+description = "Celes 0.1 — a tag-based markup language toolkit"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "Server-Lab Open-Control License (SOCL) 1.0" }
+keywords = ["markup", "language", "markdown", "parser", "celes"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: Other/Proprietary License",
+    "Operating System :: OS Independent",
+    "Topic :: Text Processing :: Markup",
+]
+
+[project.urls]
+Homepage = "https://github.com/TheServer-lab/Celes"
+Repository = "https://github.com/TheServer-lab/Celes"
+"Bug Tracker" = "https://github.com/TheServer-lab/Celes/issues"
+
+[project.scripts]
+celes = "celes.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["celes*"]

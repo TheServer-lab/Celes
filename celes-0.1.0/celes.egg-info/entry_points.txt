@@ -1,0 +1,2 @@
+[console_scripts]
+celes = celes.cli:main
