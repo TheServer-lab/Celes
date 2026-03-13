@@ -230,7 +230,7 @@ A native Windows application (`Celes.exe`) wrapping the editor with native Open 
 Syntax highlighting, snippets for every tag, live validation with error squiggles, and a live HTML preview panel.
 
 ### 🌐 Browser Extension
-Automatically renders `.celes` files when opened in Chrome or Edge. Available on the Chrome Web Store and Edge Add-ons.
+Automatically renders `.celes` files when opened in Chrome or Edge. NOT Available on the Chrome Web Store and Edge Add-ons.
 
 ---
 
