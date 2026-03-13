@@ -1,0 +1,89 @@
+{
+  "name": "celes-lang",
+  "displayName": "Celes",
+  "icon": "images/icon.png",
+  "description": "Celes 0.1.4 language support \u2014 syntax highlighting, snippets, validation, and live HTML preview",
+  "version": "0.1.4",
+  "publisher": "rr1ck",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TheServer-lab/Celes"
+  },
+  "homepage": "https://github.com/TheServer-lab/Celes",
+  "bugs": {
+    "url": "https://github.com/TheServer-lab/Celes/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "activationEvents": [
+    "onLanguage:celes"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "celes",
+        "aliases": [
+          "Celes",
+          "celes"
+        ],
+        "extensions": [
+          ".celes"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "celes",
+        "scopeName": "source.celes",
+        "path": "./syntaxes/celes.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "celes",
+        "path": "./snippets/celes.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "celes.preview",
+        "title": "Celes: Open Live HTML Preview",
+        "icon": "images/icon.png"
+      },
+      {
+        "command": "celes.validate",
+        "title": "Celes: Validate File"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "celes.preview",
+          "when": "resourceExtname == .celes",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Celes",
+      "properties": {
+        "celes.pythonPath": {
+          "type": "string",
+          "default": "python",
+          "description": "Path to the Python executable used for validation and preview."
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "vsce": "^2.15.0"
+  }
+}
