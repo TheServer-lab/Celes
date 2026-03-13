@@ -5,7 +5,7 @@
 
   <a href="https://pypi.org/project/celes/"><img src="https://img.shields.io/pypi/v/celes?color=D4622A&label=pypi" alt="PyPI"/></a>
   <a href="https://pypi.org/project/celes/"><img src="https://img.shields.io/pypi/dm/celes?color=D4622A&label=downloads" alt="Downloads"/></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=TheServer-lab.celes-lang"><img src="https://img.shields.io/visual-studio-marketplace/v/TheServer-lab.celes-lang?color=D4622A&label=vscode" alt="VS Code"/></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=rr1ck.celes-lang"><img src="https://img.shields.io/visual-studio-marketplace/v/rr1ck.celes-lang?color=D4622A&label=vscode" alt="VS Code"/></a>
   <img src="https://img.shields.io/badge/version-0.1.5-D4622A" alt="Version"/>
   <img src="https://img.shields.io/badge/python-3.8%2B-blue" alt="Python"/>
   <img src="https://img.shields.io/badge/license-SOCL--1.0-lightgrey" alt="License"/>
@@ -247,7 +247,7 @@ A native Windows application (`Celes.exe`) wrapping the editor with native Open 
 - `Ctrl+Shift+E` — Export to HTML
 
 ### 🧩 VS Code Extension
-[![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/TheServer-lab.celes-lang?label=Install%20from%20Marketplace&color=D4622A)](https://marketplace.visualstudio.com/items?itemName=TheServer-lab.celes-lang)
+[![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/rr1ck.celes-lang?label=Install%20from%20Marketplace&color=D4622A)](https://marketplace.visualstudio.com/items?itemName=rr1ck.celes-lang)
 
 Syntax highlighting, snippets for every tag, live validation with error squiggles, and a live HTML preview panel.
 
