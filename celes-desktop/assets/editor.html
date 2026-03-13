@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Celes Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,700;1,300&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #F5F2ED;
+  --surface:  #FFFFFF;
+  --dark:     #0D0F14;
+  --mid:      #2A2D35;
+  --muted:    #6B7280;
+  --accent:   #D4622A;
+  --accent2:  #4A7FA5;
+  --border:   #E2DDD6;
+  --code-bg:  #1A1D24;
+  --code-fg:  #CDD6F4;
+  --green:    #4CAF50;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+}
+
+html, body { height: 100%; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--dark);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+header {
+  background: var(--dark);
+  color: #fff;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  height: 52px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #1f2230;
+}
+.logo {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.logo-badge {
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+}
+.tab {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.45);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.4rem 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tab:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.07); }
+.tab.active { color: #fff; background: rgba(255,255,255,0.12); }
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.btn-header {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  letter-spacing: 0.02em;
+}
+.btn-header:hover { opacity: 0.85; }
+.btn-header.secondary {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.8);
+}
+.btn-header.secondary:hover { background: rgba(255,255,255,0.15); }
+
+/* ── Toolbar ── */
+.toolbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0.4rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.toolbar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 0.3rem;
+}
+.tb {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 0.3rem 0.45rem;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--mid);
+  transition: all 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  white-space: nowrap;
+}
+.tb:hover { background: var(--bg); border-color: var(--border); }
+.tb.active { background: #EBF4FF; border-color: var(--accent2); color: var(--accent2); }
+.tb svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+.tb-select {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.25rem 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--mid);
+  background: var(--surface);
+  cursor: pointer;
+  height: 28px;
+  outline: none;
+}
+.tb-select:hover { border-color: var(--accent2); }
+
+/* ── Main Layout ── */
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Editor Panel ── */
+.editor-panel {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--surface);
+  padding: 3rem 4rem;
+  min-width: 0;
+}
+.editor-panel:focus { outline: none; }
+
+/* Editor content styles */
+.editor-panel h1 { font-family: var(--font-display); font-size: 2rem; font-weight: 700; margin: 0.5em 0 0.3em; color: var(--dark); line-height: 1.2; }
+.editor-panel h2 { font-family: var(--font-display); font-size: 1.55rem; font-weight: 600; margin: 0.6em 0 0.3em; }
+.editor-panel h3 { font-size: 1.2rem; font-weight: 600; margin: 0.6em 0 0.3em; }
+.editor-panel h4 { font-size: 1.05rem; font-weight: 600; margin: 0.6em 0 0.3em; }
+.editor-panel h5, .editor-panel h6 { font-size: 0.95rem; font-weight: 600; margin: 0.6em 0 0.3em; }
+.editor-panel p { margin: 0.5em 0; line-height: 1.75; color: #333; }
+.editor-panel p:empty::before { content: attr(data-placeholder); color: #bbb; pointer-events: none; font-style: italic; }
+.editor-panel ul, .editor-panel ol { padding-left: 1.8rem; margin: 0.5em 0; }
+.editor-panel li { margin: 0.25em 0; line-height: 1.65; }
+.editor-panel blockquote { border-left: 3px solid var(--accent); padding: 0.3rem 1rem; margin: 0.8em 0; color: #555; font-style: italic; }
+.editor-panel pre { background: var(--code-bg); color: var(--code-fg); padding: 1rem; border-radius: 7px; font-family: var(--font-mono); font-size: 0.875rem; margin: 0.8em 0; overflow-x: auto; }
+.editor-panel code { background: #f0f0f0; padding: 0.1em 0.4em; border-radius: 3px; font-family: var(--font-mono); font-size: 0.875em; }
+.editor-panel pre code { background: none; padding: 0; color: inherit; }
+.editor-panel table { border-collapse: collapse; width: 100%; margin: 0.8em 0; }
+.editor-panel th, .editor-panel td { border: 1px solid var(--border); padding: 0.45rem 0.8rem; text-align: left; font-size: 0.9rem; }
+.editor-panel th { background: var(--bg); font-weight: 600; }
+.editor-panel img { max-width: 100%; border-radius: 5px; }
+.editor-panel a { color: var(--accent2); text-decoration: underline; }
+.editor-panel mark { background: #fff176; padding: 0.05em 0.2em; border-radius: 2px; }
+.editor-panel sup { font-size: 0.75em; vertical-align: super; }
+.editor-panel sub { font-size: 0.75em; vertical-align: sub; }
+.editor-panel .celes-button-preview { display: inline-block; background: #1a73e8; color: #fff; padding: 0.3em 0.8em; border-radius: 5px; font-size: 0.9em; font-weight: 500; text-decoration: none; margin: 0 0.1em; }
+[contenteditable]:focus { outline: none; }
+
+/* Placeholder */
+.editor-panel:empty::before {
+  content: "Start typing your document...";
+  color: #ccc;
+  font-style: italic;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* ── Celes Output Panel ── */
+.output-panel {
+  width: 420px;
+  min-width: 320px;
+  flex-shrink: 0;
+  background: var(--code-bg);
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #252836;
+}
+.output-header {
+  padding: 0.6rem 1rem;
+  background: #151720;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #252836;
+  flex-shrink: 0;
+}
+.output-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.btn-copy {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0.2rem 0.65rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-copy:hover { background: rgba(255,255,255,0.14); color: #fff; }
+.btn-copy.copied { background: rgba(76,175,80,0.2); border-color: rgba(76,175,80,0.4); color: #4CAF50; }
+#celes-output {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.75;
+  color: var(--code-fg);
+  white-space: pre;
+  word-break: normal;
+}
+
+/* Syntax colors in output */
+.tok-decl    { color: #89DCEB; }
+.tok-tag     { color: #89B4FA; }
+.tok-attr    { color: #F38BA8; }
+.tok-val     { color: #A6E3A1; }
+.tok-brace   { color: #CBA6F7; }
+.tok-content { color: #CDD6F4; }
+.tok-comment { color: #585B70; font-style: italic; }
+
+/* ── Playground Tab ── */
+#tab-playground {
+  display: none;
+  flex: 1;
+  overflow: hidden;
+}
+#tab-playground.active { display: flex; }
+#tab-editor { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+#tab-editor.hidden { display: none; }
+
+.playground-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+.playground-pane + .playground-pane {
+  border-left: 1px solid var(--border);
+}
+.pane-header {
+  padding: 0.55rem 1rem;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#playground-input {
+  flex: 1;
+  resize: none;
+  border: none;
+  outline: none;
+  padding: 1.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.855rem;
+  line-height: 1.7;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  overflow-y: auto;
+}
+#playground-preview {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  background: var(--surface);
+  font-family: var(--font-body);
+  line-height: 1.75;
+}
+#playground-preview h1 { font-family: var(--font-display); font-size: 1.9rem; margin: 0.5em 0 0.3em; }
+#playground-preview h2 { font-family: var(--font-display); font-size: 1.5rem; margin: 0.6em 0 0.3em; }
+#playground-preview h3,h4,h5,h6 { font-size: 1.1rem; margin: 0.6em 0 0.3em; font-weight: 600; }
+#playground-preview p { margin: 0.6em 0; }
+#playground-preview blockquote { border-left: 3px solid var(--accent); padding: 0.3rem 1rem; margin: 0.8em 0; color: #555; font-style: italic; background: #fdf8f5; }
+#playground-preview pre { background: var(--code-bg); color: var(--code-fg); padding: 1rem; border-radius: 7px; font-family: var(--font-mono); font-size: 0.875rem; overflow-x: auto; margin: 0.8em 0; }
+#playground-preview code { background: #f0f0f0; padding: 0.1em 0.4em; border-radius: 3px; font-family: var(--font-mono); font-size: 0.875em; }
+#playground-preview pre code { background: none; padding: 0; color: inherit; }
+#playground-preview table { border-collapse: collapse; width: 100%; margin: 0.8em 0; }
+#playground-preview th, #playground-preview td { border: 1px solid var(--border); padding: 0.45rem 0.8rem; text-align: left; font-size: 0.9rem; }
+#playground-preview th { background: var(--bg); font-weight: 600; }
+#playground-preview ul, #playground-preview ol { padding-left: 1.8rem; margin: 0.5em 0; }
+#playground-preview li { margin: 0.25em 0; }
+#playground-preview a { color: var(--accent2); }
+#playground-preview img { max-width: 100%; }
+#playground-preview hr { border: none; border-top: 1px solid var(--border); margin: 1.5em 0; }
+#playground-preview input[type=checkbox] { margin-right: 0.4em; }
+#playground-preview .celes-error { color: #c00; background: #fff0f0; border: 1px solid #fcc; padding: 0.3rem 0.7rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.85em; margin: 0.4em 0; }
+
+/* Status bar */
+.statusbar {
+  background: var(--dark);
+  color: rgba(255,255,255,0.4);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 0 1rem;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-shrink: 0;
+  border-top: 1px solid #1a1d24;
+}
+.statusbar span { display: flex; align-items: center; gap: 0.35rem; }
+
+/* Link dialog */
+.dialog-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.dialog-overlay.open { display: flex; }
+.dialog {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 1.5rem;
+  width: 340px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.dialog h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 1rem; }
+.dialog input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  outline: none;
+  margin-bottom: 0.75rem;
+}
+.dialog input:focus { border-color: var(--accent2); }
+.dialog-btns { display: flex; gap: 0.5rem; justify-content: flex-end; }
+.dialog-btns button {
+  border: none;
+  border-radius: 5px;
+  padding: 0.4rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-confirm { background: var(--accent2); color: #fff; }
+.btn-cancel  { background: var(--bg); color: var(--mid); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <span>Celes</span>
+    <span class="logo-badge">0.1.5</span>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('editor')">Editor</button>
+    <button class="tab" onclick="switchTab('playground')">Playground</button>
+  </div>
+  <div class="header-right" id="header-right">
+    <!-- Desktop buttons injected by initDesktopMenu() when running as .exe -->
+    <button class="btn-header secondary" onclick="clearEditor()">Clear</button>
+    <button class="btn-header secondary" id="btn-save" onclick="nativeSave()" style="display:none">Save</button>
+    <button class="btn-header secondary" id="btn-open" onclick="nativeOpen()" style="display:none">Open</button>
+    <button class="btn-header secondary" id="btn-export" onclick="nativeExportHTML()" style="display:none">Export HTML</button>
+    <button class="btn-header" onclick="downloadCeles()" id="btn-download">Download .celes</button>
+  </div>
+</header>
+
+<!-- Toolbar (editor only) -->
+<div class="toolbar" id="toolbar">
+  <!-- Heading select -->
+  <select class="tb-select" onchange="applyHeading(this.value); this.value='p'">
+    <option value="p">Paragraph</option>
+    <option value="h1">Heading 1</option>
+    <option value="h2">Heading 2</option>
+    <option value="h3">Heading 3</option>
+    <option value="h4">Heading 4</option>
+    <option value="h5">Heading 5</option>
+    <option value="h6">Heading 6</option>
+  </select>
+  <div class="toolbar-sep"></div>
+  <!-- Inline formatting -->
+  <button class="tb" title="Bold (Ctrl+B)" onclick="fmt('bold')" id="btn-bold">
+    <svg viewBox="0 0 24 24"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
+  </button>
+  <button class="tb" title="Italic (Ctrl+I)" onclick="fmt('italic')" id="btn-italic">
+    <svg viewBox="0 0 24 24"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+  </button>
+  <button class="tb" title="Underline (Ctrl+U)" onclick="fmt('underline')" id="btn-underline">
+    <svg viewBox="0 0 24 24"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
+  </button>
+  <button class="tb" title="Strikethrough" onclick="fmt('strikeThrough')" id="btn-strikeThrough">
+    <svg viewBox="0 0 24 24"><line x1="4" y1="12" x2="20" y2="12"/><path d="M17.5 6.5C17.5 4.01 15.04 2 12 2S6.5 4.01 6.5 6.5c0 1.96 1.28 3.64 3.23 4.5H12"/><path d="M6.5 17.5C6.5 19.99 8.96 22 12 22s5.5-2.01 5.5-4.5c0-1.96-1.28-3.64-3.23-4.5H12"/></svg>
+  </button>
+  <button class="tb" title="Inline code" onclick="insertInlineCode()" id="btn-code">
+    <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+  </button>
+  <button class="tb" title="Superscript" onclick="insertWrapped('sup')" id="btn-sup">
+    <svg viewBox="0 0 24 24"><path d="M4 19l8-8"/><path d="m12 19-8-8"/><path d="M20 12h-4c0-1.5.442-2 1.5-2.5S20 8.334 20 7.002c0-.472-.17-.93-.484-1.29a2.105 2.105 0 0 0-2.617-.436c-.42.239-.738.614-.899 1.06"/></svg>
+  </button>
+  <button class="tb" title="Subscript" onclick="insertWrapped('sub')" id="btn-sub">
+    <svg viewBox="0 0 24 24"><path d="M4 5l8 8"/><path d="m12 5-8 8"/><path d="M20 21h-4c0-1.5.442-2 1.5-2.5S20 17.334 20 16.002c0-.472-.17-.93-.484-1.29a2.105 2.105 0 0 0-2.617-.436c-.42.239-.738.614-.899 1.06"/></svg>
+  </button>
+  <button class="tb" title="Highlight" onclick="insertWrapped('mark')" id="btn-mark" style="font-size:0.75rem;font-weight:700;letter-spacing:-0.02em;">M</button>
+  <div class="toolbar-sep"></div>
+  <!-- Alignment -->
+  <button class="tb" title="Align left" onclick="fmt('justifyLeft')">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+  </button>
+  <button class="tb" title="Align center" onclick="fmt('justifyCenter')">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+  </button>
+  <button class="tb" title="Align right" onclick="fmt('justifyRight')">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="toolbar-sep"></div>
+  <!-- Lists -->
+  <button class="tb" title="Bullet list" onclick="fmt('insertUnorderedList')" id="btn-insertUnorderedList">
+    <svg viewBox="0 0 24 24"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg>
+  </button>
+  <button class="tb" title="Numbered list" onclick="fmt('insertOrderedList')" id="btn-insertOrderedList">
+    <svg viewBox="0 0 24 24"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <div class="toolbar-sep"></div>
+  <!-- Blocks -->
+  <button class="tb" title="Blockquote" onclick="insertBlockquote()">
+    <svg viewBox="0 0 24 24"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+  </button>
+  <button class="tb" title="Code block" onclick="insertCodeBlock()">
+    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="m8 10-3 3 3 3"/><path d="m16 10 3 3-3 3"/><line x1="12" y1="7" x2="12" y2="17"/></svg>
+  </button>
+  <button class="tb" title="Insert link" onclick="openLinkDialog()">
+    <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+  </button>
+  <button class="tb" title="Insert table" onclick="insertTable()">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+  </button>
+  <button class="tb" title="Insert section divider" onclick="insertSection()" style="font-size:0.72rem;font-weight:700;letter-spacing:0.04em;">§</button>
+  <button class="tb" title="Insert button" onclick="openButtonDialog()" style="font-size:0.72rem;font-weight:700;">BTN</button>
+</div>
+
+<!-- Editor Tab -->
+<div id="tab-editor">
+  <div class="main">
+    <div class="editor-panel" id="editor" contenteditable="true" spellcheck="true">
+      <h1>Welcome to Celes Editor</h1>
+      <p>This is a <strong>WYSIWYG editor</strong> that outputs <em>Celes 0.1.5</em> markup. Format your document using the toolbar and see the Celes code update live on the right.</p>
+      <p>New in 0.1.5: <sup>video</sup>, <sub>audio</sub>, <mark style="background:#fff176">background color</mark>, and inline colored text.</p>
+    </div>
+    <div class="output-panel">
+      <div class="output-header">
+        <span class="output-label">Celes Output</span>
+        <button class="btn-copy" id="copy-btn" onclick="copyCeles()">Copy</button>
+      </div>
+      <div id="celes-output"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Playground Tab -->
+<div id="tab-playground">
+  <div class="playground-pane">
+    <div class="pane-header">
+      <span>Celes Source</span>
+      <span style="font-size:0.7rem;opacity:0.6">Edit and see live preview →</span>
+    </div>
+    <textarea id="playground-input" spellcheck="false" placeholder="Type Celes here..."><!Celes-0.1.5>
+<title>{Celes Playground}
+<author>{Sourasish Das}
+<date>{13/03/2025}
+<background>{#fdf8f4}
+<section>{Introduction}
+<header -size=1>{Hello from Celes 0.1.5!}
+<line>{This is the <bold>{Celes Playground}. Edit this source and see it render live on the right.}
+<newline>
+<section>{New in 0.1.5}
+<list -bullet=circle>{<coloredtext -color=#D4622A>{Colored text} — inline color with any CSS color or hex}
+<list -bullet=circle>{<video> — embedded HTML5 video with -loop -autoplay -mute}
+<list -bullet=circle>{<audio> — audio player with -loop -autoplay}
+<list -bullet=circle>{<background> — sets the page background color}
+<newline>
+<section>{Colored Text Demo}
+<line>{<coloredtext -color=#D4622A>{Celes} is the language for documents that last.}
+<line>{<bold>{<coloredtext -color=royalblue>{Bold and blue.}} <coloredtext -color=#4EB87A>{Green text.}}
+<newline>
+<section>{Data}
+<table>{Feature, Markdown, Celes}
+<item>{Syntax, Symbol-based, Tag-based}
+<item>{Parser, Lenient, Strict}
+<item>{Media tags, No, Yes (0.1.5)}
+<newline>
+<blockquote>{Celes is designed to be read and written by humans. <nestquote>{Every tag has a name. Every value has a key.}}
+<newline>
+<line -align=center>{Made with <bold>{Celes} 0.1.5}</textarea>
+  </div>
+  <div class="playground-pane">
+    <div class="pane-header">Live Preview</div>
+    <div id="playground-preview"></div>
+  </div>
+</div>
+
+<!-- Status bar -->
+<div class="statusbar" id="statusbar">
+  <span>Celes 0.1.5</span>
+  <span id="stat-lines">0 lines</span>
+  <span id="stat-words">0 words</span>
+</div>
+
+<!-- Link dialog -->
+<div class="dialog-overlay" id="link-dialog">
+  <div class="dialog">
+    <h3>Insert Link</h3>
+    <input type="text" id="link-text" placeholder="Display text">
+    <input type="url" id="link-url" placeholder="https://example.com">
+    <div class="dialog-btns">
+      <button class="btn-cancel" onclick="closeLinkDialog()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmLink()">Insert</button>
+    </div>
+  </div>
+</div>
+
+<!-- Button dialog -->
+<div class="dialog-overlay" id="button-dialog">
+  <div class="dialog">
+    <h3>Insert Button</h3>
+    <input type="text" id="button-label" placeholder="Button label">
+    <input type="url" id="button-url" placeholder="https://example.com">
+    <div class="dialog-btns">
+      <button class="btn-cancel" onclick="closeButtonDialog()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmButton()">Insert</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// CELES PARSER (JS)
+// ─────────────────────────────────────────────
+function findBrace(s, start) {
+  let d = 0;
+  for (let i = start; i < s.length; i++) {
+    if (s[i] === '{') d++;
+    else if (s[i] === '}') { d--; if (d === 0) return i; }
+  }
+  return -1;
+}
+function parseAttrs(a) {
+  const r = {};
+  const re = /-(\w+)(?:=(\S+?))?(?=\s+-\w|$)/g;
+  let m;
+  while ((m = re.exec(a)) !== null) r[m[1]] = m[2] !== undefined ? m[2] : true;
+  return r;
+}
+function splitLine(line) {
+  line = line.trim();
+  if (line.startsWith(';') || line.startsWith('<!')) return [line];
+  const res = []; let i = 0;
+  while (i < line.length) {
+    if (line[i] !== '<') break;
+    const te = line.indexOf('>', i);
+    if (te === -1) { res.push(line.slice(i)); break; }
+    const at = te + 1;
+    if (at < line.length && line[at] === '{') {
+      const cl = findBrace(line, at);
+      if (cl !== -1) { res.push(line.slice(i, cl + 1)); i = cl + 1; continue; }
+    }
+    res.push(line.slice(i, at)); i = at;
+  }
+  return res.length ? res : [line];
+}
+function parseTag(line) {
+  line = line.trim();
+  if (!line) return null;
+  if (line.startsWith(';')) return ['comment', {}, line.slice(1).trim()];
+  if (line.startsWith('<!')) return ['declaration', {}, line];
+  if (!line.startsWith('<')) return ['error', {}, line];
+  const te = line.indexOf('>');
+  if (te === -1) return ['error', {}, line];
+  const hm = line.slice(1, te).match(/^([\w+]+)(.*)/s);
+  if (!hm) return ['error', {}, line];
+  const name = hm[1].toLowerCase(), attrs = parseAttrs(hm[2]);
+  const rest = line.slice(te + 1).trim();
+  if (!rest) return [name, attrs, null];
+  if (!rest.startsWith('{')) return ['error', {}, `Missing braces after <${name}>`];
+  const cl = findBrace(rest, 0);
+  if (cl === -1) return ['error', {}, line];
+  return [name, attrs, rest.slice(1, cl)];
+}
+function tokenize(source) {
+  const tokens = [];
+  const lines = source.split('\n');
+  let i = 0;
+  while (i < lines.length) {
+    let raw = lines[i]; i++;
+    if (!raw.trim()) continue;
+    let depth = 0;
+    for (const ch of raw) { if (ch === '{') depth++; else if (ch === '}') depth--; }
+    while (depth > 0 && i < lines.length) {
+      raw += '\n' + lines[i];
+      for (const ch of lines[i]) { if (ch === '{') depth++; else if (ch === '}') depth--; }
+      i++;
+    }
+    for (const s of splitLine(raw)) {
+      if (!s.trim()) continue;
+      const r = parseTag(s);
+      if (r) tokens.push(r);
+    }
+  }
+  return tokens;
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function inlineHtml(content, raw=false) {
+  if (!content) return '';
+  if (raw) return esc(content);
+  let res = '', i = 0;
+  while (i < content.length) {
+    const ts = content.indexOf('<', i);
+    if (ts === -1) { res += esc(content.slice(i)); break; }
+    res += esc(content.slice(i, ts));
+    const te = content.indexOf('>', ts);
+    if (te === -1) { res += esc(content.slice(ts)); break; }
+    const hm = content.slice(ts+1, te).match(/^([\w+]+)(.*)/s);
+    if (!hm) { res += esc(content.slice(ts, te+1)); i = te+1; continue; }
+    const name = hm[1].toLowerCase(), attrs = parseAttrs(hm[2]), at = te+1;
+    let inner = '', end = at;
+    if (at < content.length && content[at] === '{') {
+      const cl = findBrace(content, at);
+      if (cl !== -1) { inner = content.slice(at+1, cl); end = cl+1; }
+    }
+    const im = inlineHtml(inner);
+    if      (name==='bold')        res += `<strong>${im}</strong>`;
+    else if (name==='italic')      res += `<em>${im}</em>`;
+    else if (name==='bold+italic') res += `<strong><em>${im}</em></strong>`;
+    else if (name==='underline')   res += `<u>${im}</u>`;
+    else if (name==='strike')      res += `<s>${im}</s>`;
+    else if (name==='super')       res += `<sup>${im}</sup>`;
+    else if (name==='sub')         res += `<sub>${im}</sub>`;
+    else if (name==='mark')        res += `<mark style="background:#fff176;padding:0.05em 0.2em;border-radius:2px">${im}</mark>`;
+    else if (name==='code')        res += `<code>${esc(inner)}</code>`;
+    else if (name==='newline')     res += '<br>';
+    else if (name==='empty')       res += esc(inner);
+    else if (name==='nestquote')   res += `<blockquote class="nested" style="border-left:3px solid #CBA6F7;padding:0.3rem 1rem;margin:0.4em 0;margin-left:1rem;font-style:italic;background:#fdf5ff">${im}</blockquote>`;
+    else if (name==='link')   { const body = attrs.body||im; res += `<a href="${esc(inner)}">${esc(body)}</a>`; }
+    else if (name==='button') { const body = attrs.body||im; res += `<a href="${esc(inner)}" style="display:inline-block;background:#1a73e8;color:#fff;padding:0.3em 0.8em;border-radius:5px;text-decoration:none;font-size:0.9em;font-weight:500">${esc(body)}</a>`; }
+    else if (name==='checkmark') { const ch='check' in attrs?'checked':''; res += `<input type="checkbox" ${ch} disabled> ${im}`; }
+    else if (name==='coloredtext') { const col=attrs.color||'inherit'; res += `<span style="color:${esc(col)}">${im}</span>`; }
+    else res += im;
+    i = end;
+  }
+  return res;
+}
+function renderCeles(source) {
+  const tokens = tokenize(source);
+  let title = 'Celes Document'; let bgSet = false; const body = []; let i = 0;
+  while (i < tokens.length) {
+    const [name, attrs, content] = tokens[i];
+    if (name==='comment'||name==='declaration') { i++; continue; }
+    if (name==='title') { title=content||''; i++; }
+    else if (name==='author'||name==='date') { i++; } // metadata, not rendered
+    else if (name==='section') { body.push(`<div style="display:flex;align-items:center;gap:0.75rem;margin:2em 0 1em"><div style="flex:1;height:1px;background:#ddd"></div><span style="font-size:0.72rem;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap">${esc(content||'')}</span><div style="flex:1;height:1px;background:#ddd"></div></div>`); i++; }
+    else if (name==='header') { const sz=attrs.size||'1'; body.push(`<h${sz}>${inlineHtml(content)}</h${sz}>`); i++; }
+    else if (name==='line') { const al=attrs.align||''; const st=al?` style="text-align:${esc(al)}"`:'' ; body.push(`<p${st}>${inlineHtml(content)}</p>`); i++; }
+    else if (name==='blockquote') { body.push(`<blockquote>${inlineHtml(content)}</blockquote>`); i++; }
+    else if (name==='codeblock') { body.push(`<pre><code>${esc(content||'')}</code></pre>`); i++; }
+    else if (name==='image') { body.push(`<img src="${esc(content||'')}" alt="">`); i++; }
+    else if (name==='linkimage') { const img=attrs.image||''; body.push(`<a href="${esc(content||'')}"><img src="${esc(img)}" alt=""></a>`); i++; }
+    else if (name==='table') {
+      const cols=(content||'').split(',').map(c=>c.trim());
+      const hcells=cols.map(c=>`<th>${esc(c)}</th>`).join('');
+      const rows=[`<thead><tr>${hcells}</tr></thead>`]; const brows=[]; i++;
+      while (i<tokens.length&&tokens[i][0]==='item') {
+        const cells=(tokens[i][2]||'').split(',').map(c=>c.trim());
+        brows.push(`<tr>${cells.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`); i++;
+      }
+      rows.push(`<tbody>${brows.join('')}</tbody>`);
+      body.push(`<table>${rows.join('')}</table>`);
+    }
+    else if (name==='list') {
+      const items=[];
+      while (i<tokens.length&&tokens[i][0]==='list') {
+        const [,ia,ic]=tokens[i]; const bullet=ia.bullet||'circle'; const lt=bullet==='number'?'ol':'ul'; i++;
+        const subs=[]; let subType='ul';
+        while (i<tokens.length&&tokens[i][0]==='sublist') {
+          const sb=tokens[i][1].bullet||'circle'; subType=sb==='number'?'ol':'ul';
+          const subContent=tokens[i][2]||''; i++;
+          const subsubs=[]; let subsubType='ul';
+          while (i<tokens.length&&tokens[i][0]==='subsublist') {
+            const ssb=tokens[i][1].bullet||'circle'; subsubType=ssb==='number'?'ol':'ul';
+            subsubs.push(`<li>${inlineHtml(tokens[i][2]||'')}</li>`); i++;
+          }
+          const ssh=subsubs.length?`<${subsubType}>${subsubs.join('')}</${subsubType}>`:'';
+          subs.push(`<li>${inlineHtml(subContent)}${ssh}</li>`);
+        }
+        const sh=subs.length?`<${subType}>${subs.join('')}</${subType}>`:'';
+        items.push([lt,ic,sh]);
+      }
+      if (items.length) {
+        const lt=items[0][0];
+        const lis=items.map(([,c,s])=>`<li>${inlineHtml(c)}${s}</li>`).join('');
+        body.push(`<${lt}>${lis}</${lt}>`);
+      }
+    }
+    else if (name==='newline') { body.push('<br>'); i++; }
+    else if (name==='pagebreak') { body.push('<div style="page-break-after:always"></div>'); i++; }
+    else if (name==='insertspace') { body.push('<hr>'); i++; }
+    else if (name==='video') {
+      const loop='loop' in attrs?' loop':'';
+      const autoplay='autoplay' in attrs?' autoplay':'';
+      const mute='mute' in attrs?' muted':'';
+      body.push(`<video controls${loop}${autoplay}${mute} style="max-width:100%;border-radius:8px;margin:0.8em 0"><source src="${esc(content||'')}">Your browser does not support the video tag.</video>`);
+      i++;
+    }
+    else if (name==='audio') {
+      const loop='loop' in attrs?' loop':'';
+      const autoplay='autoplay' in attrs?' autoplay':'';
+      body.push(`<audio controls${loop}${autoplay} style="width:100%;margin:0.8em 0"><source src="${esc(content||'')}">Your browser does not support the audio tag.</audio>`);
+      i++;
+    }
+    else if (name==='background') {
+      if (!bgSet) { body.unshift(`<style>body{background-color:${esc(content||'')}}</style>`); bgSet=true; }
+      i++;
+    }
+    else if (name==='error') { body.push(`<div class="celes-error">⚠ ${esc(content||'')}</div>`); i++; }
+    else i++;
+  }
+  return body.join('\n');
+}
+
+// ─────────────────────────────────────────────
+// DOM → CELES CONVERTER
+// ─────────────────────────────────────────────
+function nodeToInlineCeles(node) {
+  if (node.nodeType === Node.TEXT_NODE) {
+    return node.textContent.replace(/[<{]/g, m => m === '<' ? '<empty>{<}' : '{');
+  }
+  if (node.nodeType !== Node.ELEMENT_NODE) return '';
+  const tag = node.tagName.toLowerCase();
+  const inner = Array.from(node.childNodes).map(nodeToInlineCeles).join('');
+
+  if (tag === 'strong' || tag === 'b') {
+    if (node.querySelector('em') && node.childNodes.length === 1 && node.firstChild.tagName?.toLowerCase() === 'em') {
+      return `<bold+italic>{${Array.from(node.firstChild.childNodes).map(nodeToInlineCeles).join('')}}`;
+    }
+    return `<bold>{${inner}}`;
+  }
+  if (tag === 'em' || tag === 'i') {
+    if (node.querySelector('strong') && node.childNodes.length === 1 && node.firstChild.tagName?.toLowerCase() === 'strong') {
+      return `<bold+italic>{${Array.from(node.firstChild.childNodes).map(nodeToInlineCeles).join('')}}`;
+    }
+    return `<italic>{${inner}}`;
+  }
+  if (tag === 'u')    return `<underline>{${inner}}`;
+  if (tag === 's' || tag === 'strike' || tag === 'del') return `<strike>{${inner}}`;
+  if (tag === 'sup')  return `<super>{${inner}}`;
+  if (tag === 'sub')  return `<sub>{${inner}}`;
+  if (tag === 'mark') return `<mark>{${inner}}`;
+  if (tag === 'code') return `<code>{${node.textContent}}`;
+  if (tag === 'a') {
+    const href = node.getAttribute('href') || '';
+    const cls = node.getAttribute('class') || '';
+    const body = node.textContent;
+    if (cls.includes('celes-button-preview')) return `<button -body=${body}>{${href}}`;
+    return `<link -body=${body}>{${href}}`;
+  }
+  if (tag === 'br') return '<newline>';
+  if (tag === 'input' && node.type === 'checkbox') {
+    return node.checked ? '<checkmark -check>{' : '<checkmark -uncheck>{';
+  }
+  return inner;
+}
+
+function blockToCeles(el) {
+  const tag = el.tagName.toLowerCase();
+  const lines = [];
+
+  // Heading
+  const hMatch = tag.match(/^h([1-6])$/);
+  if (hMatch) {
+    const size = hMatch[1];
+    const text = Array.from(el.childNodes).map(nodeToInlineCeles).join('');
+    return [`<header -size=${size}>{${text}}`];
+  }
+
+  // Paragraph
+  if (tag === 'p' || tag === 'div') {
+    const text = Array.from(el.childNodes).map(nodeToInlineCeles).join('').trim();
+    if (!text) return ['<newline>'];
+    const align = el.style.textAlign;
+    if (align && align !== 'left') return [`<line -align=${align}>{${text}}`];
+    return [`<line>{${text}}`];
+  }
+
+  // Blockquote
+  if (tag === 'blockquote') {
+    const text = Array.from(el.childNodes).map(nodeToInlineCeles).join('').trim();
+    return [`<blockquote>{${text}}`];
+  }
+
+  // Pre / code block
+  if (tag === 'pre') {
+    const code = el.querySelector('code') ? el.querySelector('code').textContent : el.textContent;
+    return [`<codeblock>{${code}}`];
+  }
+
+  // Unordered list
+  if (tag === 'ul') {
+    const items = [];
+    el.querySelectorAll(':scope > li').forEach(li => {
+      const subUl = li.querySelector('ul');
+      const subOl = li.querySelector('ol');
+      // Get text without sublists
+      const textNodes = Array.from(li.childNodes).filter(n => n.tagName !== 'UL' && n.tagName !== 'OL');
+      const text = textNodes.map(nodeToInlineCeles).join('').trim();
+      items.push(`<list -bullet=circle>{${text}}`);
+      if (subUl) subUl.querySelectorAll(':scope > li').forEach(sli => {
+        items.push(`<sublist -bullet=circle>{${Array.from(sli.childNodes).map(nodeToInlineCeles).join('').trim()}}`);
+      });
+      if (subOl) subOl.querySelectorAll(':scope > li').forEach(sli => {
+        items.push(`<sublist -bullet=number>{${Array.from(sli.childNodes).map(nodeToInlineCeles).join('').trim()}}`);
+      });
+    });
+    return items;
+  }
+
+  // Ordered list
+  if (tag === 'ol') {
+    const items = [];
+    el.querySelectorAll(':scope > li').forEach(li => {
+      const subUl = li.querySelector('ul');
+      const subOl = li.querySelector('ol');
+      const textNodes = Array.from(li.childNodes).filter(n => n.tagName !== 'UL' && n.tagName !== 'OL');
+      const text = textNodes.map(nodeToInlineCeles).join('').trim();
+      items.push(`<list -bullet=number>{${text}}`);
+      if (subUl) subUl.querySelectorAll(':scope > li').forEach(sli => {
+        items.push(`<sublist -bullet=circle>{${Array.from(sli.childNodes).map(nodeToInlineCeles).join('').trim()}}`);
+      });
+      if (subOl) subOl.querySelectorAll(':scope > li').forEach(sli => {
+        items.push(`<sublist -bullet=number>{${Array.from(sli.childNodes).map(nodeToInlineCeles).join('').trim()}}`);
+      });
+    });
+    return items;
+  }
+
+  // Table
+  if (tag === 'table') {
+    const rows = [];
+    const headers = Array.from(el.querySelectorAll('th')).map(th => th.textContent.trim());
+    if (headers.length) rows.push(`<table>{${headers.join(', ')}}`);
+    el.querySelectorAll('tr').forEach(tr => {
+      const tds = tr.querySelectorAll('td');
+      if (tds.length) rows.push(`<item>{${Array.from(tds).map(td=>td.textContent.trim()).join(', ')}}`);
+    });
+    return rows;
+  }
+
+  // BR
+  if (tag === 'br') return ['<newline>'];
+
+  // HR
+  if (tag === 'hr') return ['<insertspace>'];
+
+  return [];
+}
+
+function domToCeles(editorEl) {
+  const lines = ['<!Celes-0.1.5>'];
+
+  function processNode(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const t = node.textContent.trim();
+      if (t) lines.push(`<line>{${t}}`);
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const tag = node.tagName.toLowerCase();
+
+    // Section divider
+    if (node.getAttribute('data-celes-section')) {
+      const span = node.querySelector('span');
+      const label = span ? span.textContent.trim() : node.getAttribute('data-celes-section');
+      lines.push(`<section>{${label}}`);
+      return;
+    }
+
+    // Headings
+    const hm = tag.match(/^h([1-6])$/);
+    if (hm) {
+      const text = Array.from(node.childNodes).map(nodeToInlineCeles).join('').trim();
+      if (text) lines.push(`<header -size=${hm[1]}>{${text}}`);
+      return;
+    }
+
+    // Paragraph / div / span at top level
+    if (tag === 'p' || tag === 'div' || tag === 'span') {
+      // Skip if it only contains a BR
+      if (node.childNodes.length === 1 && node.firstChild.tagName === 'BR') {
+        lines.push('<newline>'); return;
+      }
+      const text = Array.from(node.childNodes).map(nodeToInlineCeles).join('').trim();
+      if (!text) { lines.push('<newline>'); return; }
+      const align = node.style && node.style.textAlign;
+      if (align && align !== 'left') lines.push(`<line -align=${align}>{${text}}`);
+      else lines.push(`<line>{${text}}`);
+      return;
+    }
+
+    // Blockquote
+    if (tag === 'blockquote') {
+      const text = Array.from(node.childNodes).map(nodeToInlineCeles).join('').trim();
+      if (text) lines.push(`<blockquote>{${text}}`);
+      return;
+    }
+
+    // Pre / codeblock
+    if (tag === 'pre') {
+      const code = node.querySelector('code') ? node.querySelector('code').textContent : node.textContent;
+      lines.push(`<codeblock>{${code}}`); return;
+    }
+
+    // Unordered list
+    if (tag === 'ul') {
+      Array.from(node.querySelectorAll(':scope > li')).forEach(li => {
+        const subUl = li.querySelector(':scope > ul');
+        const subOl = li.querySelector(':scope > ol');
+        const textNodes = Array.from(li.childNodes).filter(n => !['UL','OL'].includes(n.tagName));
+        const text = textNodes.map(nodeToInlineCeles).join('').trim();
+        if (text) lines.push(`<list -bullet=circle>{${text}}`);
+        if (subUl) subUl.querySelectorAll(':scope > li').forEach(s =>
+          lines.push(`<sublist -bullet=circle>{${Array.from(s.childNodes).map(nodeToInlineCeles).join('').trim()}}`));
+        if (subOl) subOl.querySelectorAll(':scope > li').forEach(s =>
+          lines.push(`<sublist -bullet=number>{${Array.from(s.childNodes).map(nodeToInlineCeles).join('').trim()}}`));
+      });
+      return;
+    }
+
+    // Ordered list
+    if (tag === 'ol') {
+      Array.from(node.querySelectorAll(':scope > li')).forEach(li => {
+        const subUl = li.querySelector(':scope > ul');
+        const subOl = li.querySelector(':scope > ol');
+        const textNodes = Array.from(li.childNodes).filter(n => !['UL','OL'].includes(n.tagName));
+        const text = textNodes.map(nodeToInlineCeles).join('').trim();
+        if (text) lines.push(`<list -bullet=number>{${text}}`);
+        if (subUl) subUl.querySelectorAll(':scope > li').forEach(s =>
+          lines.push(`<sublist -bullet=circle>{${Array.from(s.childNodes).map(nodeToInlineCeles).join('').trim()}}`));
+        if (subOl) subOl.querySelectorAll(':scope > li').forEach(s =>
+          lines.push(`<sublist -bullet=number>{${Array.from(s.childNodes).map(nodeToInlineCeles).join('').trim()}}`));
+      });
+      return;
+    }
+
+    // Table
+    if (tag === 'table') {
+      const headers = Array.from(node.querySelectorAll('th')).map(th => th.textContent.trim());
+      if (headers.length) lines.push(`<table>{${headers.join(', ')}}`);
+      node.querySelectorAll('tr').forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length) lines.push(`<item>{${Array.from(tds).map(td => td.textContent.trim()).join(', ')}}`);
+      });
+      return;
+    }
+
+    if (tag === 'br')  { lines.push('<newline>'); return; }
+    if (tag === 'hr')  { lines.push('<insertspace>'); return; }
+
+    // Fallback: recurse into children
+    Array.from(node.childNodes).forEach(processNode);
+  }
+
+  Array.from(editorEl.childNodes).forEach(processNode);
+  return lines.join('\n');
+}
+
+// ─────────────────────────────────────────────
+// SYNTAX HIGHLIGHT CELES OUTPUT
+// ─────────────────────────────────────────────
+function highlightCeles(source) {
+  return source.split('\n').map(line => {
+    if (!line.trim()) return '';
+    if (line.startsWith(';')) return `<span class="tok-comment">${esc(line)}</span>`;
+    if (line.startsWith('<!')) return `<span class="tok-decl">${esc(line)}</span>`;
+
+    // Tokenise: walk the line and highlight tag headers + content
+    let out = '';
+    let i = 0;
+    while (i < line.length) {
+      if (line[i] === '<') {
+        const te = line.indexOf('>', i);
+        if (te === -1) { out += esc(line.slice(i)); break; }
+        const header = line.slice(i+1, te);
+        const hm = header.match(/^([\w+]+)(.*)/s);
+        if (!hm) { out += esc(line.slice(i, te+1)); i = te+1; continue; }
+        const name = hm[1];
+        const attrStr = hm[2].replace(/-(\w+)=(\S*)/g,
+          (_, k, v) => ` <span class="tok-attr">-${k}</span>=<span class="tok-val">${esc(v)}</span>`);
+        out += `&lt;<span class="tok-tag">${esc(name)}</span>${attrStr}&gt;`;
+        i = te + 1;
+      } else if (line[i] === '{') {
+        // find matching }
+        let depth = 0, j = i;
+        while (j < line.length) {
+          if (line[j] === '{') depth++;
+          else if (line[j] === '}') { depth--; if (depth === 0) break; }
+          j++;
+        }
+        const inner = line.slice(i+1, j);
+        out += `<span class="tok-brace">{</span><span class="tok-content">${esc(inner)}</span><span class="tok-brace">}</span>`;
+        i = j + 1;
+      } else {
+        // plain text until next < or {
+        let j = i;
+        while (j < line.length && line[j] !== '<' && line[j] !== '{') j++;
+        out += esc(line.slice(i, j));
+        i = j;
+      }
+    }
+    return out;
+  }).join('\n');
+}
+
+// ─────────────────────────────────────────────
+// UPDATE OUTPUT
+// ─────────────────────────────────────────────
+let updateTimer = null;
+function scheduleUpdate() {
+  clearTimeout(updateTimer);
+  updateTimer = setTimeout(updateOutput, 120);
+}
+
+function updateOutput() {
+  const editor = document.getElementById('editor');
+  const celes = domToCeles(editor);
+  document.getElementById('celes-output').innerHTML = highlightCeles(celes);
+
+  // Stats
+  const text = editor.innerText;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const lines = celes.split('\n').length;
+  document.getElementById('stat-lines').textContent = `${lines} lines`;
+  document.getElementById('stat-words').textContent = `${words} words`;
+}
+
+// ─────────────────────────────────────────────
+// TOOLBAR ACTIONS
+// ─────────────────────────────────────────────
+function fmt(cmd) {
+  document.execCommand(cmd, false, null);
+  scheduleUpdate();
+  updateToolbarState();
+}
+
+function applyHeading(tag) {
+  document.execCommand('formatBlock', false, tag);
+  scheduleUpdate();
+}
+
+function insertBlockquote() {
+  document.execCommand('formatBlock', false, 'blockquote');
+  scheduleUpdate();
+}
+
+function insertCodeBlock() {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  const text = sel.toString() || 'code here';
+  const pre = document.createElement('pre');
+  const code = document.createElement('code');
+  code.textContent = text;
+  pre.appendChild(code);
+  sel.deleteFromDocument();
+  sel.getRangeAt(0).insertNode(pre);
+  scheduleUpdate();
+}
+
+function insertInlineCode() {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  const text = sel.toString() || 'code';
+  const code = document.createElement('code');
+  code.textContent = text;
+  const range = sel.getRangeAt(0);
+  range.deleteContents();
+  range.insertNode(code);
+  scheduleUpdate();
+}
+
+function insertWrapped(tag) {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  const text = sel.toString() || (tag === 'sup' ? '2' : tag === 'sub' ? '2' : 'text');
+  const el = document.createElement(tag);
+  if (tag === 'mark') el.style.background = '#fff176';
+  el.textContent = text;
+  const range = sel.getRangeAt(0);
+  range.deleteContents();
+  range.insertNode(el);
+  scheduleUpdate();
+}
+
+function insertSection() {
+  const label = prompt('Section name:', 'Section');
+  if (!label) return;
+  const div = document.createElement('div');
+  div.className = 'celes-section-editor';
+  div.style.cssText = 'display:flex;align-items:center;gap:0.75rem;margin:1.5em 0;';
+  div.innerHTML = `<div style="flex:1;height:1px;background:#ddd"></div><span style="font-size:0.72rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.08em" contenteditable="true">${label}</span><div style="flex:1;height:1px;background:#ddd"></div>`;
+  div.setAttribute('data-celes-section', label);
+  const sel = window.getSelection();
+  if (sel.rangeCount) { sel.getRangeAt(0).collapse(false); sel.getRangeAt(0).insertNode(div); }
+  else document.getElementById('editor').appendChild(div);
+  scheduleUpdate();
+}
+
+// Button dialog
+let savedRangeBtn = null;
+function openButtonDialog() {
+  const sel = window.getSelection();
+  if (sel.rangeCount) savedRangeBtn = sel.getRangeAt(0).cloneRange();
+  document.getElementById('button-label').value = sel.toString() || '';
+  document.getElementById('button-url').value = '';
+  document.getElementById('button-dialog').classList.add('open');
+  document.getElementById('button-label').focus();
+}
+function closeButtonDialog() { document.getElementById('button-dialog').classList.remove('open'); }
+function confirmButton() {
+  const label = document.getElementById('button-label').value || 'Click here';
+  const url = document.getElementById('button-url').value;
+  if (!url) { closeButtonDialog(); return; }
+  const a = document.createElement('a');
+  a.href = url; a.textContent = label;
+  a.className = 'celes-button-preview';
+  a.style.cssText = 'display:inline-block;background:#1a73e8;color:#fff;padding:0.3em 0.8em;border-radius:5px;font-size:0.9em;font-weight:500;text-decoration:none;margin:0 0.1em';
+  if (savedRangeBtn) {
+    const sel = window.getSelection();
+    sel.removeAllRanges(); sel.addRange(savedRangeBtn);
+    savedRangeBtn.deleteContents(); savedRangeBtn.insertNode(a);
+  }
+  closeButtonDialog(); scheduleUpdate();
+}
+
+function insertTable() {
+  const table = document.createElement('table');
+  table.innerHTML = `<thead><tr><th>Column 1</th><th>Column 2</th><th>Column 3</th></tr></thead>
+  <tbody><tr><td>Cell</td><td>Cell</td><td>Cell</td></tr>
+  <tr><td>Cell</td><td>Cell</td><td>Cell</td></tr></tbody>`;
+  const sel = window.getSelection();
+  if (sel.rangeCount) {
+    const range = sel.getRangeAt(0);
+    range.collapse(false);
+    range.insertNode(table);
+  } else {
+    document.getElementById('editor').appendChild(table);
+  }
+  scheduleUpdate();
+}
+
+// Link dialog
+let savedRange = null;
+function openLinkDialog() {
+  const sel = window.getSelection();
+  if (sel.rangeCount) savedRange = sel.getRangeAt(0).cloneRange();
+  document.getElementById('link-text').value = sel.toString() || '';
+  document.getElementById('link-url').value = '';
+  document.getElementById('link-dialog').classList.add('open');
+  document.getElementById('link-url').focus();
+}
+function closeLinkDialog() {
+  document.getElementById('link-dialog').classList.remove('open');
+}
+function confirmLink() {
+  const text = document.getElementById('link-text').value || 'link';
+  const url = document.getElementById('link-url').value;
+  if (!url) { closeLinkDialog(); return; }
+  const a = document.createElement('a');
+  a.href = url; a.textContent = text;
+  if (savedRange) {
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedRange);
+    savedRange.deleteContents();
+    savedRange.insertNode(a);
+  }
+  closeLinkDialog();
+  scheduleUpdate();
+}
+
+function updateToolbarState() {
+  ['bold','italic','underline','strikeThrough','insertUnorderedList','insertOrderedList'].forEach(cmd => {
+    const btn = document.getElementById(`btn-${cmd}`);
+    if (btn) btn.classList.toggle('active', document.queryCommandState(cmd));
+  });
+}
+
+// ─────────────────────────────────────────────
+// COPY & DOWNLOAD
+// ─────────────────────────────────────────────
+function getCelesText() {
+  return domToCeles(document.getElementById('editor'));
+}
+
+function copyCeles() {
+  navigator.clipboard.writeText(getCelesText()).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+function downloadCeles() {
+  const blob = new Blob([getCelesText()], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'document.celes';
+  a.click();
+}
+
+function clearEditor() {
+  if (confirm('Clear the editor?')) {
+    document.getElementById('editor').innerHTML = '<p><br></p>';
+    scheduleUpdate();
+  }
+}
+
+// ─────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['editor','playground'][i] === tab));
+  document.getElementById('tab-editor').classList.toggle('hidden', tab !== 'editor');
+  document.getElementById('tab-playground').classList.toggle('active', tab === 'playground');
+  document.getElementById('toolbar').style.display = tab === 'editor' ? '' : 'none';
+  if (tab === 'playground') updatePlayground();
+}
+
+// ─────────────────────────────────────────────
+// PLAYGROUND
+// ─────────────────────────────────────────────
+function updatePlayground() {
+  const src = document.getElementById('playground-input').value;
+  const html = renderCeles(src);
+  document.getElementById('playground-preview').innerHTML = html;
+}
+
+// ─────────────────────────────────────────────
+// INIT & EVENTS
+// ─────────────────────────────────────────────
+const editor = document.getElementById('editor');
+editor.addEventListener('input', scheduleUpdate);
+editor.addEventListener('keyup', updateToolbarState);
+editor.addEventListener('mouseup', updateToolbarState);
+editor.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.shiftKey) {
+    e.preventDefault();
+    document.execCommand('insertLineBreak');
+  }
+});
+
+document.getElementById('playground-input').addEventListener('input', updatePlayground);
+document.getElementById('link-dialog').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmLink();
+  if (e.key === 'Escape') closeLinkDialog();
+});
+document.getElementById('button-dialog').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmButton();
+  if (e.key === 'Escape') closeButtonDialog();
+});
+
+// ─────────────────────────────────────────────
+// DESKTOP MODE (pywebview native file API)
+// ─────────────────────────────────────────────
+function initDesktopMenu() {
+  // Show native buttons, hide browser download
+  document.getElementById('btn-save').style.display = '';
+  document.getElementById('btn-open').style.display = '';
+  document.getElementById('btn-export').style.display = '';
+  document.getElementById('btn-download').style.display = 'none';
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.key === 's') { e.preventDefault(); e.shiftKey ? nativeSaveAs() : nativeSave(); }
+    if (e.ctrlKey && e.key === 'o') { e.preventDefault(); nativeOpen(); }
+    if (e.ctrlKey && e.shiftKey && e.key === 'E') { e.preventDefault(); nativeExportHTML(); }
+  });
+}
+
+async function nativeOpen() {
+  const result = await window.pywebview.api.open_file();
+  if (!result || result.error) return;
+  // Load the celes source into the playground input and switch to playground
+  // or optionally load into the editor via markdown-like conversion
+  document.getElementById('playground-input').value = result.content;
+  switchTab('playground');
+  updatePlayground();
+  window.__currentFile = result.name;
+  await window.pywebview.api.set_title(result.name);
+}
+
+async function nativeSave() {
+  const content = getCelesText();
+  const result = await window.pywebview.api.save_file(content);
+  if (result && result.path) {
+    const name = result.path.split(/[\\/]/).pop();
+    window.__currentFile = name;
+    await window.pywebview.api.set_title(name);
+    const btn = document.getElementById('btn-save');
+    const orig = btn.textContent;
+    btn.textContent = 'Saved ✓';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  }
+}
+
+async function nativeSaveAs() {
+  const content = getCelesText();
+  const result = await window.pywebview.api.save_file_as(content);
+  if (result && result.path) {
+    window.__currentFile = result.name;
+    await window.pywebview.api.set_title(result.name);
+  }
+}
+
+async function nativeExportHTML() {
+  // Build a full standalone HTML document from the current editor
+  const celes = getCelesText();
+  const preview = document.getElementById('playground-preview');
+  const previewHTML = preview ? preview.innerHTML : '';
+  const fullHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${window.__currentFile || 'Celes Document'}</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;max-width:760px;margin:3rem auto;padding:2rem;color:#1a1a1a;line-height:1.7}
+h1,h2,h3,h4,h5,h6{font-family:Georgia,serif;margin:1.2em 0 0.4em;line-height:1.2}
+p{margin:0.6em 0}blockquote{border-left:3px solid #D4622A;padding:0.4rem 1rem;margin:0.8em 0;font-style:italic;color:#555}
+pre{background:#1a1d24;color:#cdd6f4;padding:1rem;border-radius:7px;overflow-x:auto;font-size:0.88rem}
+code{background:#f0f0f0;padding:0.1em 0.4em;border-radius:3px;font-size:0.88em}
+pre code{background:none;color:inherit}
+table{border-collapse:collapse;width:100%;margin:0.8em 0}
+th,td{border:1px solid #ddd;padding:0.45rem 0.8rem;text-align:left}
+th{background:#f5f5f5;font-weight:600}
+ul,ol{padding-left:1.8rem;margin:0.6em 0}
+li{margin:0.25em 0}
+mark{background:#fff176;padding:0.05em 0.2em;border-radius:2px}
+a.celes-button{display:inline-block;background:#D4622A;color:#fff;padding:0.4em 1.1em;border-radius:5px;text-decoration:none;font-weight:600;font-size:0.9rem}
+.celes-section{display:flex;align-items:center;gap:1rem;margin:1.5em 0}
+.celes-section::before,.celes-section::after{content:'';flex:1;height:1px;background:#ddd}
+.celes-section-label{font-size:0.7rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.1em;white-space:nowrap}
+hr{border:none;border-top:1px solid #e0e0e0;margin:1em 0}
+</style>
+</head>
+<body>
+${previewHTML}
+</body>
+</html>`;
+  await window.pywebview.api.export_html(fullHTML);
+}
+
+// Initial render
+updateOutput();
+updatePlayground();
+</script>
+</body>
+</html>
