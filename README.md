@@ -1,12 +1,12 @@
 <div align="center">
   <img src="celes-icons/celes-128.png" width="96" alt="Celes logo"/>
   <h1>Celes</h1>
-  <p>A strict, tag-based markup language. Explicit syntax. Zero ambiguity.</p>
+  <p>A markup language designed for archiving. Explicit syntax. Built to last.</p>
 
   <a href="https://pypi.org/project/celes/"><img src="https://img.shields.io/pypi/v/celes?color=D4622A&label=pypi" alt="PyPI"/></a>
   <a href="https://pypi.org/project/celes/"><img src="https://img.shields.io/pypi/dm/celes?color=D4622A&label=downloads" alt="Downloads"/></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=rr1ck.celes-lang"><img src="https://img.shields.io/visual-studio-marketplace/v/rr1ck.celes-lang?color=D4622A&label=vscode" alt="VS Code"/></a>
-  <img src="https://img.shields.io/badge/version-0.1.4-D4622A" alt="Version"/>
+  <a href="https://marketplace.visualstudio.com/items?itemName=TheServer-lab.celes-lang"><img src="https://img.shields.io/visual-studio-marketplace/v/TheServer-lab.celes-lang?color=D4622A&label=vscode" alt="VS Code"/></a>
+  <img src="https://img.shields.io/badge/version-0.1.5-D4622A" alt="Version"/>
   <img src="https://img.shields.io/badge/python-3.8%2B-blue" alt="Python"/>
   <img src="https://img.shields.io/badge/license-SOCL--1.0-lightgrey" alt="License"/>
 </div>
@@ -14,23 +14,26 @@
 ---
 
 ```
-<!Celes-0.1.4>
+<!Celes-0.1.5>
 <title>{Hello World}
+<background>{#0f0f0f}
 <header -size=1>{Welcome to Celes}
-<line>{This is <bold>{bold}, <mark>{highlighted}, and E=mc<super>{2}.}
-<list -bullet=circle>{Simple}
-<list -bullet=circle>{Explicit}
-<list -bullet=circle>{Powerful}
-<line>{<button -body=Get Started>{https://github.com/TheServer-lab/Celes}}
+<line>{This is <bold>{bold}, <mark>{highlighted}, and <coloredtext -color=#D4622A>{colored} text.}
+<list -bullet=circle>{Plain text — readable forever}
+<list -bullet=circle>{Strict parser — errors are never silent}
+<list -bullet=circle>{Version-stamped — every file knows its spec}
+<line>{<button -body=Get Started>{https://celes.is-best.net}}
 ```
 
 ---
 
 ## Why Celes?
 
-Markdown's symbol-based syntax has real ambiguity problems. A `*` might be bold, italic, or a list item depending on context. Indentation rules differ between parsers. Nested structures are fragile.
+Most document formats are designed to look good today. **Celes is designed to still be readable in 50 years.**
 
-Celes takes the opposite approach: **every element is a named tag, every attribute is explicit, and the parser is strict**. If something is wrong, you get an error — not silently broken output.
+Word documents corrupt. Markdown parsers disagree on spec. HTML rots. PDFs are opaque binaries. None of them were built with long-term archiving as the primary goal.
+
+Celes is plain UTF-8 text with named tags and explicit attributes. Every document declares its version at the top. A future parser — or a human with no tooling — can read it without guessing.
 
 ```
 ; Markdown — ambiguous
@@ -95,7 +98,7 @@ markdown_source = convert_celes_to_md(celes_source)
 Every Celes file starts with a version declaration:
 
 ```
-<!Celes-0.1.4>
+<!Celes-0.1.5>
 ```
 
 Comments use a semicolon prefix:
@@ -109,21 +112,24 @@ Comments use a semicolon prefix:
 | Tag | Description |
 |-----|-------------|
 | `<title>{text}` | Browser/tab title |
-| `<header -size=1>{text}` | Heading, size 1–6 |
 | `<author>{name}` | Author metadata (not rendered) |
 | `<date>{dd/mm/yyyy}` | Date metadata (not rendered) |
-| `<section>{name}` | Named section divider with horizontal rules |
+| `<background>{color}` | Page background — named color or hex e.g. `#1a1a2e` *(new in 0.1.5)* |
 
 ### Block Tags
 
 | Tag | Description |
 |-----|-------------|
+| `<header -size=1>{text}` | Heading, size 1–6 |
+| `<section>{name}` | Named section divider with horizontal rules |
 | `<line>{text}` | Paragraph |
 | `<line -align=center>{text}` | Aligned paragraph (`left`, `center`, `right`) |
 | `<blockquote>{text}` | Blockquote |
-| `<codeblock>{code}` | Multi-line code block |
+| `<codeblock>{code}` | Multi-line code block (raw — nothing inside is parsed) |
 | `<image>{path/url}` | Image |
 | `<linkimage -image=path.png>{url}` | Clickable image |
+| `<video>{url}` | HTML5 video player *(new in 0.1.5)* |
+| `<audio>{url}` | HTML5 audio player *(new in 0.1.5)* |
 
 ### Lists
 
@@ -165,6 +171,7 @@ Comments use a semicolon prefix:
 | `<sub>{text}` | Subscript |
 | `<mark>{text}` | Highlighted text |
 | `<code>{text}` | Inline code |
+| `<coloredtext -color=value>{text}` | Colored text — named color or hex *(new in 0.1.5)* |
 | `<link -body=display text>{url}` | Hyperlink |
 | `<button -body=label>{url}` | Clickable button |
 | `<checkmark -check>{text}` | Checked item (inside `<list>`) |
@@ -172,19 +179,30 @@ Comments use a semicolon prefix:
 | `<nestquote>{text}` | Nested blockquote (inside `<blockquote>`) |
 | `<empty>{raw text}` | Raw text — nothing inside is parsed |
 
+### Video & Audio Attributes
+
+| Tag | Attribute | Description |
+|-----|-----------|-------------|
+| `<video>` | `-loop` | Loops on end |
+| `<video>` | `-autoplay` | Plays on load (pair with `-mute` for browser compatibility) |
+| `<video>` | `-mute` | Muted playback |
+| `<audio>` | `-loop` | Loops on end |
+| `<audio>` | `-autoplay` | Plays on load |
+
 ---
 
 ## Full Example
 
 ```
-<!Celes-0.1.4>
+<!Celes-0.1.5>
 <title>{My Page}
 <author>{Sourasish Das}
-<date>{11/03/2025}
+<date>{13/03/2025}
+<background>{#0f0f0f}
 
 <section>{Introduction}
-<header -size=1>{Hello, Celes 0.1.4!}
-<line>{This is <bold>{bold}, <italic>{italic}, <mark>{highlighted}, and <super>{superscript} text.}
+<header -size=1>{Hello, Celes 0.1.5!}
+<line>{This is <bold>{bold}, <italic>{italic}, <mark>{highlighted}, and <coloredtext -color=#D4622A>{colored} text.}
 <line>{Water is H<sub>{2}O. Visit <link -body=example>{https://example.com}.}
 <line>{<button -body=Click Me>{https://example.com}}
 <newline>
@@ -205,8 +223,12 @@ Comments use a semicolon prefix:
 <newline>
 <codeblock>{print("Hello, World!")}
 <blockquote>{A quote. <nestquote>{A nested quote.}}
+
+<section>{Media}
+<video -loop -mute>{assets/demo.mp4}
+<audio>{podcast-episode-1.mp3}
 <insertspace>
-<line -align=center>{Made with <bold>{Celes} 0.1.4}
+<line -align=center>{Made with <bold>{Celes} 0.1.5}
 ```
 
 ---
@@ -214,7 +236,7 @@ Comments use a semicolon prefix:
 ## Tools
 
 ### 🖊 WYSIWYG Editor
-A standalone browser-based editor — no install needed. Word-like toolbar, live Celes output panel, and a raw Celes playground. Open `celes-editor.html` in any browser.
+A standalone browser-based editor — no install needed. Word-like toolbar, live Celes output panel, and a raw Celes playground. [Try it online](https://celes.is-best.net/celes-editor.html) or open `celes-editor.html` in any browser.
 
 ### 💻 Desktop App
 A native Windows application (`Celes.exe`) wrapping the editor with native Open / Save / Export HTML file dialogs.
@@ -225,12 +247,12 @@ A native Windows application (`Celes.exe`) wrapping the editor with native Open 
 - `Ctrl+Shift+E` — Export to HTML
 
 ### 🧩 VS Code Extension
-[![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/rr1ck.celes-lang?label=Install%20from%20Marketplace&color=D4622A)](https://marketplace.visualstudio.com/items?itemName=rr1ck.celes-lang)
+[![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/TheServer-lab.celes-lang?label=Install%20from%20Marketplace&color=D4622A)](https://marketplace.visualstudio.com/items?itemName=TheServer-lab.celes-lang)
 
 Syntax highlighting, snippets for every tag, live validation with error squiggles, and a live HTML preview panel.
 
 ### 🌐 Browser Extension
-Automatically renders `.celes` files when opened in Chrome or Edge. NOT Available on the Chrome Web Store and Edge Add-ons.
+Automatically renders `.celes` files when opened in Chrome or Edge. Supports `file://` and `http://` URLs.
 
 ---
 
@@ -247,7 +269,7 @@ Celes/
 ├── celes-browser/          # Chrome / Edge extension
 ├── celes-desktop/          # PyInstaller desktop app
 ├── celes-editor.html       # Standalone WYSIWYG editor
-├── Celes-0.1.4-Spec.md     # Full language specification
+├── Celes-0.1.5-Spec.md     # Full language specification
 └── README.md
 ```
 
@@ -255,11 +277,22 @@ Celes/
 
 ## Changelog
 
+### 0.1.5
+- Added `<video>` — HTML5 video player with `-loop`, `-autoplay`, `-mute`
+- Added `<audio>` — HTML5 audio player with `-loop`, `-autoplay`
+- Added `<background>` — document-level page background color
+- Added `<coloredtext -color=value>` — inline colored text
+- Parser: `<coloredtext>` without `-color` is a parse error
+- Parser: duplicate `<background>` warns and uses first value
+- Parser: `<video>`/`<audio>` used inline is a parse error
+- Parser: `-autoplay` without `-mute` on `<video>` warns
+- Fixed multiline `<codeblock>` parsing in all JS parsers
+
 ### 0.1.4
 - Added `<super>`, `<sub>`, `<mark>`, `<button>`, `<subsublist>`, `<section>`, `<author>`, `<date>`
 - Desktop app (`Celes.exe`) with native file dialogs
 - VS Code extension published to marketplace
-- Browser extension published to Chrome Web Store and Edge Add-ons
+- Browser extension for Chrome and Edge
 
 ### 0.1.1 – 0.1.3
 - License updated to SOCL 1.0
