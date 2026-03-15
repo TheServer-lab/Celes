@@ -306,3 +306,7 @@ Celes/
 ## License
 
 [Server-Lab Open-Control License (SOCL) 1.0](LICENSE) — Copyright © 2025 Sourasish Das.
+
+## Feedback
+Join our discord:
+https://discord.gg/wJEfpyd2fk
