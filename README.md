@@ -59,16 +59,16 @@ Requires Python 3.8+. No external dependencies.
 
 ```bash
 # Parse Celes → HTML
-celes parse doc.celes doc.html
+py -m celes parse doc.celes doc.html
 
 # Validate a file
-celes validate doc.celes
+py -m celes validate doc.celes
 
 # Convert Markdown → Celes
-celes md README.md README.celes
+py -m celes md README.md README.celes
 
 # Convert Celes → Markdown
-celes tomd doc.celes doc.md
+py -m celes tomd doc.celes doc.md
 ```
 
 ---
