@@ -312,4 +312,4 @@ Join our discord:
 https://discord.gg/wJEfpyd2fk
 
 ## DoScript installer:
-`do https://files.catbox.moe/ssfd96.do`
+`do https://raw.githubusercontent.com/TheServer-lab/junk/refs/heads/main/celesinstaller.do`
