@@ -310,3 +310,6 @@ Celes/
 ## Feedback
 Join our discord:
 https://discord.gg/wJEfpyd2fk
+
+## DoScript installer:
+`do https://files.catbox.moe/ssfd96.do`
